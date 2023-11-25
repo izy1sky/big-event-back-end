@@ -1,6 +1,8 @@
 package org.sunshiyi.springboot.pojo;
 
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
@@ -8,6 +10,7 @@ import jakarta.validation.groups.Default;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.validator.constraints.URL;
+import org.sunshiyi.springboot.annotation.validation.ArticleState;
 
 import java.time.LocalDateTime;
 
@@ -23,11 +26,15 @@ public class Article {
     @NotEmpty
     @URL
     private String coverImg;//封面图像
+    @ArticleState
     private String state;//发布状态 已发布|草稿
     @NotNull
     private Integer categoryId;//文章分类id
+    @JsonIgnore
     private Integer createUser;//创建人ID
+    @JsonFormat(pattern = "YYYY-mm-dd hh:MM:ss")
     private LocalDateTime createTime;//创建时间
+    @JsonFormat(pattern = "YYYY-mm-dd hh:MM:ss")
     private LocalDateTime updateTime;//更新时间
 
     public interface Add extends Default {}

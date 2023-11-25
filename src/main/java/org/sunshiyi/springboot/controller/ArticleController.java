@@ -6,6 +6,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.sunshiyi.springboot.pojo.Article;
+import org.sunshiyi.springboot.pojo.ArticlePageDTO;
+import org.sunshiyi.springboot.pojo.PageBean;
 import org.sunshiyi.springboot.pojo.Result;
 import org.sunshiyi.springboot.service.IArticleService;
 import org.sunshiyi.springboot.utils.JwtUtil;
@@ -24,5 +26,11 @@ public class ArticleController {
     public Result addArticle(@RequestBody @Validated(Article.Add.class) Article article) {
         articleService.addArticle(article);
         return Result.success();
+    }
+
+    @GetMapping
+    public Result<PageBean<Article>> articlePageQuery(@Validated ArticlePageDTO articlePageDTO) {
+        PageBean<Article> pageBean = articleService.articlePageQuery(articlePageDTO);
+        return Result.success(pageBean);
     }
 }
