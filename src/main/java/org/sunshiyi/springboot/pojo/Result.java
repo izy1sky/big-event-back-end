@@ -20,11 +20,11 @@ public class Result<T> {
     }
 
     //快速返回操作成功响应结果
-    public static Result success() {
-        return new Result(0, "操作成功", null);
+    public static Result<Object> success() {
+        return new Result<>(0, "操作成功", null);
     }
 
-    public static Result error(String message) {
-        return new Result(1, message, null);
+    public static Result<Object> error(String message) {
+        return new Result<>(1, message, null);
     }
 }

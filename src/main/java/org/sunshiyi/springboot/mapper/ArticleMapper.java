@@ -1,11 +1,8 @@
 package org.sunshiyi.springboot.mapper;
 
-import com.github.pagehelper.Page;
-import org.apache.ibatis.annotations.Insert;
-import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.*;
 import org.sunshiyi.springboot.pojo.Article;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Mapper
@@ -14,5 +11,14 @@ public interface ArticleMapper {
             "(#{title}, #{content}, #{coverImg}, #{state}, #{categoryId}, #{createUser}, #{createTime}, #{updateTime})")
     void addArticle(Article article);
 
-    ArrayList<Article> findByConditions(Integer id, Integer categoryId, String state);
+    List<Article> findByConditions(Integer id, Integer categoryId, String state);
+
+    @Update("update article set title = #{title}, content = #{content}, cover_img = #{coverImg}, state = #{state}, category_id = #{categoryId}, create_user = #{createUser}, update_time = #{updateTime} where id = #{id}")
+    void updateArticle(Article article);
+
+    @Select("select * from article where id = #{id}")
+    Article getDetail(Integer id);
+
+    @Delete("delete from article where id = #{id}")
+    void deleteArticle(Integer id);
 }

@@ -12,7 +12,6 @@ import org.sunshiyi.springboot.service.IArticleService;
 import org.sunshiyi.springboot.utils.ThreadLocalUtil;
 
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.Map;
 
 @Service
@@ -41,5 +40,24 @@ public class ArticleService implements IArticleService {
         pageBean.setTotal(articles.getTotal());
         pageBean.setItems(articles.getResult());
         return pageBean;
+    }
+
+    @Override
+    public void updateArticle(Article article) {
+        Map<String, Object> claims = ThreadLocalUtil.get();
+        Integer id = (Integer) claims.get("id");
+        article.setCreateUser(id);
+        article.setUpdateTime(LocalDateTime.now());
+        articleMapper.updateArticle(article);
+    }
+
+    @Override
+    public Article getDetail(Integer id) {
+        return articleMapper.getDetail(id);
+    }
+
+    @Override
+    public void deleteArticle(Integer id) {
+        articleMapper.deleteArticle(id);
     }
 }

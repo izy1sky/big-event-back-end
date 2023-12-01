@@ -17,6 +17,7 @@ import java.time.LocalDateTime;
 @Data
 @NoArgsConstructor
 public class Article {
+    @NotNull(groups = Update.class)
     private Integer id;//主键ID
     @NotEmpty
     @Pattern(regexp = "^\\S{1,10}$")
@@ -32,10 +33,13 @@ public class Article {
     private Integer categoryId;//文章分类id
     @JsonIgnore
     private Integer createUser;//创建人ID
-    @JsonFormat(pattern = "YYYY-mm-dd hh:MM:ss")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime createTime;//创建时间
-    @JsonFormat(pattern = "YYYY-mm-dd hh:MM:ss")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime updateTime;//更新时间
 
     public interface Add extends Default {}
+
+    public interface Update extends Default {
+    }
 }

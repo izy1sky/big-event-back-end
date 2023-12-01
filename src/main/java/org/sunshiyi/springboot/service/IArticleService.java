@@ -8,4 +8,10 @@ public interface IArticleService {
     void addArticle(Article article);
 
     PageBean<Article> articlePageQuery(ArticlePageDTO articlePageDTO);
+
+    void updateArticle(Article article);
+
+    Article getDetail(Integer id);
+
+    void deleteArticle(Integer id);
 }

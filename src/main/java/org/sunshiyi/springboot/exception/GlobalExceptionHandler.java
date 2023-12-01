@@ -9,7 +9,7 @@ import org.sunshiyi.springboot.pojo.Result;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
     @ExceptionHandler(Exception.class)
-    public Result handleException(@NotNull Exception e) {
+    public Result<Object> handleException(@NotNull Exception e) {
         e.printStackTrace();
         return Result.error(StringUtils.hasLength(e.getMessage()) ? e.getMessage() : "操作异常！");
     }

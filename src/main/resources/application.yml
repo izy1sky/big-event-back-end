@@ -1,9 +1,25 @@
 spring:
+  profiles:
+    active: dev
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://localhost:3306/big_event
     username: root
     password: root
+  data:
+    redis:
+      port: 6379
+      host: localhost
+  servlet:
+    multipart:
+      max-file-size: 20MB
 mybatis:
   configuration:
     map-underscore-to-camel-case: true
+---
+spring:
+  config:
+    activate:
+      on-profile: dev
+server:
+  port: 8081

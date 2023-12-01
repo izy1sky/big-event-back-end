@@ -3,7 +3,8 @@ package org.sunshiyi.springboot.controller;
 import jakarta.validation.constraints.Pattern;
 import org.hibernate.validator.constraints.URL;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.util.StringUtils;
+import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.sunshiyi.springboot.pojo.Result;
@@ -16,6 +17,7 @@ import org.sunshiyi.springboot.utils.ThreadLocalUtil;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 @RestController
 @RequestMapping("/user")
@@ -23,9 +25,11 @@ import java.util.Map;
 public class UserController {
     @Autowired
     private IUserService userService;
+    @Autowired
+    private StringRedisTemplate template;
 
     @PostMapping("/register")
-    public Result register(@Pattern(regexp = "^\\w{5,12}$") String username,@Pattern(regexp = "^\\w{5,12}$") String password) {
+    public Result<Object> register(@Pattern(regexp = "^\\w{5,12}$") String username, @Pattern(regexp = "^\\w{5,12}$") String password) throws Exception {
         // select user
         User user = userService.findByUserName(username);
 
@@ -33,16 +37,16 @@ public class UserController {
             userService.register(username, password);
             return Result.success();
         } else {
-            return Result.error("用户名已占用！");
+            throw new Exception("用户名已占用！");
         }
     }
 
     @PostMapping("/login")
-    public Result<String> login(@Pattern(regexp = "^\\w{5,12}$") String username, @Pattern(regexp = "^\\w{5,12}$") String password) {
+    public Result<String> login(@Pattern(regexp = "^\\w{5,12}$") String username, @Pattern(regexp = "^\\w{5,12}$") String password) throws Exception {
         // 查询用户
         User loginUser = userService.findByUserName(username);
         if (loginUser == null) {
-            return Result.error("用户名错误！");
+            throw new Exception("用户名错误！");
         }
         if (Md5Util.checkPassword(password, loginUser.getPassword())) {
             // 生成token 载荷记录用户的id和username
@@ -50,9 +54,11 @@ public class UserController {
             claims.put("id", loginUser.getId());
             claims.put("username", username);
             String token = JwtUtil.genToken(claims);
+            ValueOperations<String, String> operations = template.opsForValue();
+            operations.set(token, token, 1, TimeUnit.HOURS);
             return Result.success(token);
         } else {
-            return Result.error("密码错误！");
+            throw new Exception("密码错误！");
         }
     }
 
@@ -65,18 +71,18 @@ public class UserController {
     }
 
     @PutMapping("/update")
-    public Result update(@RequestBody @Validated User user) {
+    public Result<Object> update(@RequestBody @Validated User user) {
         userService.update(user);
         return Result.success();
     }
 
     @PatchMapping("/updateAvatar")
-    public Result updateAvatar(@RequestParam @URL String avatarUrl) {
+    public Result<Object> updateAvatar(@RequestParam @URL String avatarUrl) {
         userService.updateAvatar(avatarUrl);
         return Result.success();
     }
     @PatchMapping("/updatePwd")
-    public Result updatePwd(@RequestBody @Validated UserPasswordDTO userPasswordDTO) {
+    public Result<Object> updatePwd(@RequestBody @Validated UserPasswordDTO userPasswordDTO, @RequestHeader("Authorization") String token) {
         Map<String, Object> claims = ThreadLocalUtil.get();
         Integer id = (Integer) claims.get("id");
         String username = (String) claims.get("username");
@@ -91,6 +97,8 @@ public class UserController {
         }
         String md5String = Md5Util.getMD5String(userPasswordDTO.getNewPwd());
         userService.updatePwd(id, md5String);
+        ValueOperations<String, String> operations = template.opsForValue();
+        operations.getOperations().delete(token);
         return Result.success();
     }
 }
